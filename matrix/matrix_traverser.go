@@ -44,7 +44,7 @@ func MakeMatrixTraverser(matrix [][]int) (*MatrixTraverser, error) {
  * @param start Start position (coordinates)
  * @param end End position (coordinates)
  *
- * @return Collection of {@link Pos} instances contains shortest path from start to end
+ * @return Collection of {@link Pos} instances contains shortest path from start to end if succeeded, error message if failed
  */
 func (matrixTraverser *MatrixTraverser) FindShortestPath(start *Pos, end *Pos) ([]Pos, error) {
 
@@ -68,7 +68,7 @@ func (matrixTraverser *MatrixTraverser) FindShortestPath(start *Pos, end *Pos) (
 	currentPathIdx := 0
 
 	for !matrixTraverser.isVisitDone() {
-		newPaths := matrixTraverser.getAdjCells(current, &paths[currentPathIdx])
+		newPaths := matrixTraverser.getAdjCells(current, paths[currentPathIdx])
 		for _, newPath := range newPaths {
 			paths = append(paths, newPath)
 		}
@@ -97,6 +97,14 @@ func (matrixTraverser *MatrixTraverser) FindShortestPath(start *Pos, end *Pos) (
 	return matrixTraverser.getShortestPath(paths, end)
 }
 
+/**
+ * @brief Find shorest path from collection of paths.
+ *
+ * @param paths Collection of paths
+ * @param end Coordinates of end position
+ *
+ * @return Collection of {@link Pos} instances contains shortest path if succeeded, error message if failed
+ */
 func (matrixTraverser *MatrixTraverser) getShortestPath(paths [][]Pos, end *Pos) ([]Pos, error) {
 
 	minLen := 0
@@ -121,6 +129,11 @@ func (matrixTraverser *MatrixTraverser) getShortestPath(paths [][]Pos, end *Pos)
 	return paths[minLenIdx], nil
 }
 
+/**
+ * @brief Check for cells that are not visited yet.
+ *
+ * @return true if all cells are visited, false otherwise
+ */
 func (matrixTraverser *MatrixTraverser) isVisitDone() bool {
 
 	for i := 0; i < len(matrixTraverser.matrix); i++ {
@@ -134,7 +147,15 @@ func (matrixTraverser *MatrixTraverser) isVisitDone() bool {
 	return true
 }
 
-func (matrixTraverser *MatrixTraverser) getAdjCells(pos *Pos, path *[]Pos) [][]Pos {
+/**
+ * @brief Find valid adjacent cells for a position
+ *
+ * @param pos Current position
+ * @param path Current path
+ *
+ * @return Collection of {@link Pos} instances contains valid adjacent cells if succeeded, empty collection if failed
+ */
+func (matrixTraverser *MatrixTraverser) getAdjCells(pos *Pos, path []Pos) [][]Pos {
 
 	adjRight := pos.X + 1
 	adjLeft := pos.X - 1
@@ -142,26 +163,26 @@ func (matrixTraverser *MatrixTraverser) getAdjCells(pos *Pos, path *[]Pos) [][]P
 	adjBottom := pos.Y + 1
 
 	adjCells := make([]Pos, 0)
-	if adjRight < len(matrixTraverser.matrix) && matrixTraverser.matrix[adjRight][pos.Y] == 0 && matrixTraverser.matrix[adjRight][pos.Y] == 0 {
+	if adjRight < len(matrixTraverser.matrix) && matrixTraverser.matrix[adjRight][pos.Y] == 0 {
 		adjCells = append(adjCells, Pos{X: adjRight, Y: pos.Y})
 	}
 
-	if adjBottom < len(matrixTraverser.matrix[pos.X]) && matrixTraverser.matrix[pos.X][adjBottom] == 0 && matrixTraverser.matrix[pos.X][adjBottom] == 0 {
+	if adjBottom < len(matrixTraverser.matrix[pos.X]) && matrixTraverser.matrix[pos.X][adjBottom] == 0 {
 		adjCells = append(adjCells, Pos{X: pos.X, Y: adjBottom})
 	}
 
-	if adjLeft >= 0 && matrixTraverser.matrix[adjLeft][pos.Y] == 0 && matrixTraverser.matrix[adjLeft][pos.Y] == 0 {
+	if adjLeft >= 0 && matrixTraverser.matrix[adjLeft][pos.Y] == 0 {
 		adjCells = append(adjCells, Pos{X: adjLeft, Y: pos.Y})
 	}
 
-	if adjTop >= 0 && matrixTraverser.matrix[pos.X][adjTop] == 0 && matrixTraverser.matrix[pos.X][adjTop] == 0 {
+	if adjTop >= 0 && matrixTraverser.matrix[pos.X][adjTop] == 0 {
 		adjCells = append(adjCells, Pos{X: pos.X, Y: adjTop})
 	}
 
 	paths := make([][]Pos, 0)
 	for i := 0; i < len(adjCells); i++ {
-		newPath := make([]Pos, len(*path))
-		copy(newPath, *path)
+		newPath := make([]Pos, len(path))
+		copy(newPath, path)
 		paths = append(paths, append(newPath, adjCells[i]))
 	}
 
